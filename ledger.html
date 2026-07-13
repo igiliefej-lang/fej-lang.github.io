@@ -5,131 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Sign-In Sheet</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 15px;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh;
         }
         .ledger-container {
-            background: white;
-            padding: 30px 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 100%;
+            background: white; padding: 30px 20px; border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 500px; width: 100%;
         }
-        .header-frame {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            gap: 10px;
-        }
-        .header-text {
-            text-align: center;
-            flex-grow: 1;
-        }
-        .logo-left {
-            width: 65px;
-            height: auto;
-            object-fit: contain;
-        }
+        .header-frame { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 10px; }
+        .header-text { text-align: center; flex-grow: 1; }
+        .logo-left { width: 65px; height: auto; object-fit: contain; }
         .logo-right-container {
-            width: 65px;
-            height: 65px;
-            overflow: hidden;
-            border-radius: 50%;
-            border: 2px solid #007bff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f8f9fa;
+            width: 65px; height: 65px; overflow: hidden; border-radius: 50%;
+            border: 2px solid #007bff; display: flex; justify-content: center;
+            align-items: center; background-color: #f8f9fa;
         }
-        .logo-right-container img {
-            width: 100%;
-            height: 135%;
-            object-fit: cover;
-            object-position: center 58%;
-        }
-        h2 {
-            color: #333;
-            margin: 0 0 5px 0;
-            font-size: 18px;
-        }
-        p.subtitle {
-            color: #666;
-            margin: 0;
-            font-size: 13px;
-        }
-        .form-group {
-            text-align: left;
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #444;
-            font-size: 15px;
-        }
-        input[type="text"], select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
+        .logo-right-container img { width: 100%; height: 135%; object-fit: cover; object-position: center 58%; }
+        h2 { color: #333; margin: 0 0 5px 0; font-size: 18px; }
+        p.subtitle { color: #666; margin: 0; font-size: 13px; }
+        .form-group { text-align: left; margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; color: #444; font-size: 15px; }
+        input[type="text"], select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
         button.submit-btn {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 14px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-            transition: background 0.3s;
-            margin-top: 10px;
+            background-color: #28a745; color: white; border: none; padding: 14px 20px;
+            font-size: 16px; border-radius: 5px; cursor: pointer; width: 100%;
+            font-weight: bold; transition: background 0.3s; margin-top: 10px;
         }
-        button.submit-btn:hover {
-            background-color: #218838;
-        }
-        .exit-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
-            margin-top: 20px;
-            transition: background 0.3s;
-        }
-        .exit-btn:hover {
-            background-color: #bd2130;
-        }
-        .success-banner {
-            display: none;
-            background-color: #d4edda;
-            color: #155724;
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 20px;
-            font-weight: bold;
-            text-align: left;
-            line-height: 1.6;
-        }
+        button.submit-btn:hover { background-color: #218838; }
+        .exit-btn { background-color: #dc3545; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 20px; }
+        .success-banner { display: none; background-color: #d4edda; color: #155724; padding: 20px; border-radius: 5px; margin-top: 20px; font-weight: bold; text-align: left; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -151,7 +57,6 @@
                 <label for="teacherName">Full Name:</label>
                 <input type="text" id="teacherName" placeholder="Enter your full name" required>
             </div>
-
             <div class="form-group">
                 <label for="section">School Section:</label>
                 <select id="section" required>
@@ -160,7 +65,6 @@
                     <option value="Secondary">Secondary School</option>
                 </select>
             </div>
-
             <button type="submit" class="submit-btn">Submit Attendance</button>
         </form>
 
@@ -172,9 +76,27 @@
     </div>
 
     <script>
+        // Automatic Term Week Calculator (1 to 14)
+        function getCalculatedSchoolWeek() {
+            // Edit this date to be the exact Monday morning your school term starts!
+            const termStartDate = new Date("2026-05-11"); 
+            const today = new Date();
+            
+            const timeDiff = today.getTime() - termStartDate.getTime();
+            const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+            
+            // Convert days into current school week count
+            let calculatedWeek = Math.floor(daysDiff / 7) + 1;
+            
+            // Keep bounds safely clamped between Week 1 and Week 14
+            if(calculatedWeek < 1) calculatedWeek = 1;
+            if(calculatedWeek > 14) calculatedWeek = 14;
+            
+            return calculatedWeek;
+        }
+
         function getCoordinatesAndSave(event) {
             event.preventDefault(); 
-            
             const name = document.getElementById('teacherName').value;
             const section = document.getElementById('section').value;
             const formattedTimestamp = new Date().toLocaleString();
@@ -182,50 +104,50 @@
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-                        displayLogRecord(name, section, formattedTimestamp, `${lat}, ${lon}`);
+                        displayLogRecord(name, section, formattedTimestamp, `${position.coords.latitude}, ${position.coords.longitude}`);
                     },
-                    (error) => {
-                        displayLogRecord(name, section, formattedTimestamp, "Location Access Denied");
-                    },
-                    { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
+                    () => { displayLogRecord(name, section, formattedTimestamp, "Location Denied"); },
+                    { enableHighAccuracy: true, timeout: 6000 }
                 );
             } else {
-                displayLogRecord(name, section, formattedTimestamp, "Geolocation Not Supported");
+                displayLogRecord(name, section, formattedTimestamp, "GPS Unsupported");
             }
         }
 
         function displayLogRecord(name, section, time, locationData) {
-            const attendanceLog = {
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const currentDay = days[new Date().getDay()];
+            const activeWeek = getCalculatedSchoolWeek();
+
+            const newLog = {
                 teacher: name,
                 campusSection: section,
                 time: time,
+                day: currentDay,
+                computedWeek: activeWeek,
                 coordinates: locationData
             };
 
-            console.log("Saving secured log record:", attendanceLog);
+            // Write straight to device internal browser storage arrays
+            let logsArr = JSON.parse(localStorage.getItem("localAttendanceLogs")) || [];
+            logsArr.push(newLog);
+            localStorage.setItem("localAttendanceLogs", JSON.stringify(logsArr));
 
-            // Hide form inputs
             document.getElementById('attendanceForm').style.display = 'none';
             
-            // Displays sorted receipt
             const logDetails = document.getElementById('logDetails');
             logDetails.innerHTML = `
                 <p><strong>Name:</strong> ${name}</p>
                 <p><strong>Section:</strong> ${section}</p>
+                <p><strong>Day:</strong> ${currentDay} (Week ${activeWeek})</p>
                 <p><strong>Verified Phone Time:</strong> ${time}</p>
                 <p><strong>Logged Location:</strong> <span style="color: #0056b3; font-family: monospace;">${locationData}</span></p>
-                <p style="color: #666; font-style: italic; font-size: 13px; margin-top: 15px;">Have a wonderful day at school!</p>
-            `;
+                <p style="color: #666; font-style: italic; font-size: 13px; margin-top: 15px;">Have a wonderful day at school!</p>`;
             
             document.getElementById('successMessage').style.display = 'block';
         }
 
-        // Exit button drops them cleanly back to verification step 1
-        function exitPortal() {
-            window.location.href = "index.html";
-        }
+        function exitPortal() { window.location.href = "index.html"; }
     </script>
 </body>
 </html>
