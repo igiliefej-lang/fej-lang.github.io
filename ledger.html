@@ -14,15 +14,18 @@
             background: white; padding: 30px 20px; border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 500px; width: 100%;
         }
-        .header-frame { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 10px; }
+        .header-frame { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 15px; }
         .header-text { text-align: center; flex-grow: 1; }
-        .logo-left { width: 65px; height: auto; object-fit: contain; }
+        .logo-left { max-width: 75px; height: auto; object-fit: contain; }
+        
+        /* Fixed Circular Badge Layout */
         .logo-right-container {
-            width: 65px; height: 65px; overflow: hidden; border-radius: 50%;
+            width: 70px; height: 70px; overflow: hidden; border-radius: 50%;
             border: 2px solid #007bff; display: flex; justify-content: center;
-            align-items: center; background-color: #f8f9fa;
+            align-items: center; background-color: #f8f9fa; flex-shrink: 0;
         }
-        .logo-right-container img { width: 100%; height: 135%; object-fit: cover; object-position: center 58%; }
+        .logo-right-container img { width: 100%; height: 100%; object-fit: contain; }
+        
         h2 { color: #333; margin: 0 0 5px 0; font-size: 18px; }
         p.subtitle { color: #666; margin: 0; font-size: 13px; }
         .form-group { text-align: left; margin-bottom: 20px; }
@@ -77,12 +80,8 @@
 
     <script>
         function getCalculatedSchoolWeek() {
-            let logsArr = JSON.parse(localStorage.getItem("localAttendanceLogs")) || [];
-            if(logsArr.length === 0) {
-                return 1; 
-            }
-            let lastLog = logsArr[logsArr.length - 1];
-            return parseInt(lastLog.computedWeek || 1);
+            // Pulls active setting directly managed from Admin Panel view context
+            return parseInt(localStorage.getItem("globalActiveWeek") || "1");
         }
 
         function getCoordinatesAndSave(event) {
