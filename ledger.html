@@ -3,26 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Attendance Sign-In Sheet</title>
+    <title>Teacher Attendance Portal</title>
+    <link rel="manifest" href="manifest.json">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
+            background-color: #f4f4f9;
+            margin: 0;
         }
-        .ledger-container {
+        .container {
+            text-align: center;
             background: white;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            max-width: 600px;
-            width: 100%;
+            max-width: 500px;
+            width: 90%;
         }
+        /* Framed Header Layout matching ledger styling */
         .header-frame {
             display: flex;
             justify-content: space-between;
@@ -31,7 +33,6 @@
             gap: 15px;
         }
         .header-text {
-            text-align: center;
             flex-grow: 1;
         }
         .logo-left {
@@ -39,6 +40,7 @@
             height: auto;
             object-fit: contain;
         }
+        /* Digital badge styling for the second logo */
         .logo-right-container {
             width: 70px;
             height: 70px;
@@ -58,143 +60,132 @@
             object-position: center 58%;
             filter: contrast(1.05) brightness(1.02);
         }
-        .form-group {
-            text-align: left;
-            margin-bottom: 20px;
+        h2 {
+            color: #333;
+            margin: 0 0 5px 0;
+            font-size: 20px;
         }
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #444;
+        p.subtitle {
+            color: #666;
+            margin: 0;
+            font-size: 14px;
         }
-        input[type="text"], select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        button.submit-btn {
-            background-color: #28a745;
+        button {
+            background-color: #007bff;
             color: white;
             border: none;
-            padding: 14px 20px;
+            padding: 14px 24px;
             font-size: 16px;
             border-radius: 5px;
             cursor: pointer;
-            width: 100%;
-            font-weight: bold;
             transition: background 0.3s;
-            margin-top: 10px;
-        }
-        button.submit-btn:hover {
-            background-color: #218838;
-        }
-        .success-banner {
-            display: none;
-            background-color: #d4edda;
-            color: #155724;
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 20px;
+            width: 100%;
+            margin-top: 15px;
             font-weight: bold;
-            text-align: left;
-            line-height: 1.6;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .status-msg {
+            margin-top: 15px;
+            font-size: 15px;
+            color: #333;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <div class="ledger-container">
-        
+    <div class="container">
         <div class="header-frame">
             <img src="logo_left.png.png" alt="School Logo Left" class="logo-left" onerror="this.src='logo.jpg'; this.onerror=null;">
+            
             <div class="header-text">
                 <h2>Mercy Seat Royal Schools</h2>
-                <p class="subtitle">Official Staff Attendance Registry</p>
+                <p class="subtitle">Teacher Attendance Portal</p>
             </div>
+            
             <div class="logo-right-container">
                 <img src="logo_right.jpg.jpg" alt="School Logo Right" onerror="this.src='left.jpg'; this.onerror=null;">
             </div>
         </div>
-
-        <form id="attendanceForm" onsubmit="getCoordinatesAndSave(event)">
-            <div class="form-group">
-                <label for="teacherName">Full Name:</label>
-                <input type="text" id="teacherName" placeholder="Enter your full name" required>
-            </div>
-
-            <div class="form-group">
-                <label for="section">School Section:</label>
-                <select id="section" required>
-                    <option value="">-- Select Your Section --</option>
-                    <option value="Primary">Primary School</option>
-                    <option value="Secondary">Secondary School</option>
-                </select>
-            </div>
-
-            <button type="submit" class="submit-btn">Submit Attendance</button>
-        </form>
-
-        <div id="successMessage" class="success-banner">
-            <h3>✓ Attendance Logged Successfully!</h3>
-            <div id="logDetails"></div>
-        </div>
+        
+        <button onclick="checkLocationAndLogin()">Log In / Mark Attendance</button>
+        
+        <div id="statusUpdate" class="status-msg"></div>
     </div>
 
     <script>
-        function getCoordinatesAndSave(event) {
-            event.preventDefault(); 
-            
-            const name = document.getElementById('teacherName').value;
-            const section = document.getElementById('section').value;
-            const formattedTimestamp = new Date().toLocaleString();
-
-            // Try to fetch the user's coordinates right at the exact moment of submission
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-                        displayLogRecord(name, section, formattedTimestamp, `${lat}, ${lon}`);
-                    },
-                    (error) => {
-                        // If GPS is blocked or off, save the submission but note that location was unavailable
-                        displayLogRecord(name, section, formattedTimestamp, "Location Access Denied by User/Device");
-                    },
-                    { enableHighAccuracy: true, timeout: 10000 }
-                );
-            } else {
-                displayLogRecord(name, section, formattedTimestamp, "Geolocation Not Supported");
-            }
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registered!'))
+                    .catch(err => console.log('Service Worker failed: ', err));
+            });
         }
 
-        function displayLogRecord(name, section, time, locationData) {
-            const attendanceLog = {
-                teacher: name,
-                campusSection: section,
-                time: time,
-                coordinates: locationData
+        const LOCATIONS = {
+            PRIMARY: { lat: 6.845301, lon: 3.209212, radius: 350 },
+            SECONDARY: { lat: 6.4474, lon: 3.3903, radius: 350 }
+        };
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; 
+            const phi1 = lat1 * Math.PI / 180;
+            const phi2 = lat2 * Math.PI / 180;
+            const deltaPhi = (lat2 - lat1) * Math.PI / 180;
+            const deltaLambda = (lon2 - lon1) * Math.PI / 180;
+
+            const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+                      Math.cos(phi1) * Math.cos(phi2) *
+                      Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return R * c; 
+        }
+
+        function checkLocationAndLogin() {
+            if (!navigator.geolocation) {
+                document.getElementById('statusUpdate').innerText = "Location tracking not supported.";
+                document.getElementById('statusUpdate').style.color = "red";
+                return;
+            }
+
+            const gpsOptions = {
+                enableHighAccuracy: true,
+                timeout: 6000, 
+                maximumAge: 0
             };
 
-            // This prints the record with coordinates directly to your browser's developer console
-            console.log("Saving secured log record:", attendanceLog);
+            document.getElementById('statusUpdate').innerText = "Verifying location...";
+            document.getElementById('statusUpdate').style.color = "#333";
 
-            // Hide form and display details on screen
-            document.getElementById('attendanceForm').style.display = 'none';
-            
-            const logDetails = document.getElementById('logDetails');
-            logDetails.innerHTML = `
-                <p><strong>Name:</strong> ${name}</p>
-                <p><strong>Section:</strong> ${section}</p>
-                <p><strong>Verified Phone Time:</strong> ${time}</p>
-                <p><strong>Logged From Coordinates:</strong> <span style="color: #0056b3; font-family: monospace;">${locationData}</span></p>
-                <p style="color: #666; font-style: italic; font-size: 13px; margin-top: 15px;">Have a wonderful day at school!</p>
-            `;
-            
-            document.getElementById('successMessage').style.display = 'block';
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const teacherLat = position.coords.latitude;
+                    const teacherLon = position.coords.longitude;
+
+                    const distanceToPrimary = calculateDistance(teacherLat, teacherLon, LOCATIONS.PRIMARY.lat, LOCATIONS.PRIMARY.lon);
+                    const distanceToSecondary = calculateDistance(teacherLat, teacherLon, LOCATIONS.SECONDARY.lat, LOCATIONS.SECONDARY.lon);
+
+                    if (distanceToPrimary <= LOCATIONS.PRIMARY.radius || distanceToSecondary <= LOCATIONS.SECONDARY.radius) {
+                        // High speed automatic transition without alerts
+                        window.location.href = "ledger.html";
+                    } else {
+                        document.getElementById('statusUpdate').innerText = "Access Denied: Not within vicinity.";
+                        document.getElementById('statusUpdate').style.color = "red";
+                    }
+                },
+                (error) => {
+                    document.getElementById('statusUpdate').style.color = "red";
+                    if (error.code === error.PERMISSION_DENIED) {
+                        document.getElementById('statusUpdate').innerText = "Permission Denied. Please allow location access.";
+                    } else {
+                        document.getElementById('statusUpdate').innerText = "GPS Error. Please try again.";
+                    }
+                },
+                gpsOptions
+            );
         }
     </script>
 </body>
