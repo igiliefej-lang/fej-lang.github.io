@@ -6,6 +6,9 @@
     <title>Teacher Attendance Portal</title>
     <link rel="manifest" href="manifest.json">
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -14,107 +17,134 @@
             height: 100vh;
             background-color: #f4f4f9;
             margin: 0;
+            padding: 15px;
         }
         .container {
             text-align: center;
             background: white;
-            padding: 30px;
+            padding: 30px 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            max-width: 400px;
-            width: 90%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 450px;
+            width: 100%;
+        }
+        .header-frame {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 10px;
+        }
+        .header-text {
+            flex-grow: 1;
+        }
+        .logo-left {
+            width: 65px;
+            height: auto;
+            object-fit: contain;
+        }
+        .logo-right-container {
+            width: 65px;
+            height: 65px;
+            overflow: hidden;
+            border-radius: 50%;
+            border: 2px solid #007bff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f8f9fa;
+        }
+        .logo-right-container img {
+            width: 100%;
+            height: 135%;
+            object-fit: cover;
+            object-position: center 58%;
+        }
+        h2 {
+            color: #333;
+            margin: 0 0 5px 0;
+            font-size: 18px;
+        }
+        p.subtitle {
+            color: #666;
+            margin: 0;
+            font-size: 13px;
         }
         button {
             background-color: #007bff;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 14px 20px;
             font-size: 16px;
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s;
             width: 100%;
             margin-top: 15px;
+            font-weight: bold;
         }
         button:hover {
             background-color: #0056b3;
         }
-        .debug-box {
+        .status-msg {
             margin-top: 15px;
-            font-size: 13px;
-            color: #666;
-            background: #eee;
-            padding: 10px;
-            border-radius: 5px;
-            display: none;
-            word-break: break-all;
+            font-size: 14px;
+            color: #333;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Mercy Seat Royal Schools</h2>
-        <p>Teacher Attendance Portal</p>
+        <div class="header-frame">
+            <img src="logo.png" alt="Logo Left" class="logo-left" onerror="this.src='logo.jpg'; this.onerror=null;">
+            <div class="header-text">
+                <h2>Mercy Seat Royal Schools</h2>
+                <p class="subtitle">Teacher Attendance Portal</p>
+            </div>
+            <div class="logo-right-container">
+                <img src="left.png" alt="Logo Right" onerror="this.src='left.jpg'; this.onerror=null;">
+            </div>
+        </div>
         
         <button onclick="checkLocationAndLogin()">Log In / Mark Attendance</button>
         
-        <div id="debugCoords" class="debug-box"></div>
+        <div id="statusUpdate" class="status-msg"></div>
     </div>
 
     <script>
-        // Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registered!'))
-                    .catch(err => console.log('Service Worker failed: ', err));
+                navigator.serviceWorker.register('sw.js');
             });
         }
 
-        // Configuration with your verified coordinates and 10-block safety buffers
         const LOCATIONS = {
-            PRIMARY: { 
-                lat: 6.845301, 
-                lon: 3.209212, 
-                radius: 350 
-            },
-            SECONDARY: { 
-                lat: 6.4474,  
-                lon: 3.3903,  
-                radius: 350 
-            }
+            PRIMARY: { lat: 6.845301, lon: 3.209212, radius: 350 },
+            SECONDARY: { lat: 6.4474, lon: 3.3903, radius: 350 }
         };
 
-        // Distance Calculation Formula (Haversine)
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; // Earth's radius in meters
+            const R = 6371e3; 
             const phi1 = lat1 * Math.PI / 180;
             const phi2 = lat2 * Math.PI / 180;
             const deltaPhi = (lat2 - lat1) * Math.PI / 180;
             const deltaLambda = (lon2 - lon1) * Math.PI / 180;
-
             const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
                       Math.cos(phi1) * Math.cos(phi2) *
                       Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-            return R * c; 
+            return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))); 
         }
 
         function checkLocationAndLogin() {
             if (!navigator.geolocation) {
-                alert("Your device or browser does not support location tracking.");
+                document.getElementById('statusUpdate').innerText = "Location tracking not supported.";
                 return;
             }
 
-            const gpsOptions = {
-                enableHighAccuracy: true,
-                timeout: 15000, 
-                maximumAge: 0
-            };
-
-            alert("Verifying your location. Please hold on...");
+            document.getElementById('statusUpdate').innerText = "Verifying location...";
+            document.getElementById('statusUpdate').style.color = "#333";
 
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -125,32 +155,19 @@
                     const distanceToSecondary = calculateDistance(teacherLat, teacherLon, LOCATIONS.SECONDARY.lat, LOCATIONS.SECONDARY.lon);
 
                     if (distanceToPrimary <= LOCATIONS.PRIMARY.radius || distanceToSecondary <= LOCATIONS.SECONDARY.radius) {
-                        alert("Location Verified! Welcome to Mercy Seat Royal Schools.");
-                        document.getElementById('debugCoords').style.display = "none";
-                        proceedWithAttendance(); 
+                        // Instant background redirect with NO OK boxes!
+                        window.location.href = "ledger.html";
                     } else {
-                        alert("Access Denied: You are not within the school premises or its immediate 10-block vicinity.");
-                        
-                        const debugBox = document.getElementById('debugCoords');
-                        debugBox.style.display = "block";
-                        debugBox.innerHTML = `<strong>Your Current Coordinates:</strong><br>lat: ${teacherLat}<br>lon: ${teacherLon}`;
+                        document.getElementById('statusUpdate').innerText = "Access Denied: Not within school vicinity.";
+                        document.getElementById('statusUpdate').style.color = "red";
                     }
                 },
                 (error) => {
-                    if (error.code === error.PERMISSION_DENIED) {
-                        alert("Access Denied: You must ALLOW location access to sign into the attendance portal.");
-                    } else {
-                        alert("Error detecting location. Please ensure your device GPS is turned on and try again.");
-                    }
+                    document.getElementById('statusUpdate').style.color = "red";
+                    document.getElementById('statusUpdate').innerText = "GPS Error. Ensure location access is allowed.";
                 },
-                gpsOptions
+                { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
             );
-        }
-
-        function proceedWithAttendance() {
-            console.log("Teacher verified. Redirecting to sign-in sheet...");
-            // Automatically takes them straight into the registration sheet file
-            window.location.href = "ledger.html";
         }
     </script>
 </body>
