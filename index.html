@@ -21,6 +21,8 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 90%;
         }
         button {
             background-color: #007bff;
@@ -31,38 +33,52 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background 0.3s;
+            width: 100%;
+            margin-top: 15px;
         }
         button:hover {
             background-color: #0056b3;
+        }
+        .debug-box {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #666;
+            background: #eee;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            word-break: break-all;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Mercy Seat Royal College</h2>
+        <h2>Mercy Seat Royal Schools</h2>
         <p>Teacher Attendance Portal</p>
+        
         <button onclick="checkLocationAndLogin()">Log In / Mark Attendance</button>
+        
+        <div id="debugCoords" class="debug-box"></div>
     </div>
 
     <script>
-        // 1. Service Worker Registration (Linked to your sw.js)
+        // 1. Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker registered!', reg))
-                    .catch(err => console.log('Service Worker registration failed: ', err));
+                    .then(reg => console.log('Service Worker registered!'))
+                    .catch(err => console.log('Service Worker failed: ', err));
             });
         }
 
-        // 2. Your Corrected School Coordinates Configuration
-        const SCHOOL_CONFIG = {
-            lat: 6.845301, 
-            lon: 3.209212, 
-            radiusMeters: 200 // Increased to 200 meters to ensure coverage across the compound
+        // 2. Multi-Location Configuration (Primary and Secondary)
+        const LOCATIONS = {
+            PRIMARY: { lat: 6.845301, lon: 3.209212, radius: 300 }, // 300-meter buffer
+            SECONDARY: { lat: 6.845301, lon: 3.209212, radius: 300 } // Temporarily matched to primary until you update it
         };
 
-        // 3. Mathematical formula to calculate distance in meters
+        // 3. Distance Calculation Formula
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3; // Earth's radius in meters
             const phi1 = lat1 * Math.PI / 180;
@@ -78,17 +94,16 @@
             return R * c; 
         }
 
-        // 4. Geofencing Security Check Function
+        // 4. Geofencing Main Logic
         function checkLocationAndLogin() {
             if (!navigator.geolocation) {
                 alert("Your device or browser does not support location tracking.");
                 return;
             }
 
-            // Forces high precision GPS tracking and allows time to lock on
             const gpsOptions = {
                 enableHighAccuracy: true,
-                timeout: 15000, // 15 seconds allowance for phone GPS hardware to warm up
+                timeout: 15000, 
                 maximumAge: 0
             };
 
@@ -99,39 +114,38 @@
                     const teacherLat = position.coords.latitude;
                     const teacherLon = position.coords.longitude;
 
-                    // Calculate the distance from Mercy Seat Royal College
-                    const distance = calculateDistance(
-                        teacherLat, 
-                        teacherLon, 
-                        SCHOOL_CONFIG.lat, 
-                        SCHOOL_CONFIG.lon
-                    );
+                    // Calculate distance to both locations
+                    const distanceToPrimary = calculateDistance(teacherLat, teacherLon, LOCATIONS.PRIMARY.lat, LOCATIONS.PRIMARY.lon);
+                    const distanceToSecondary = calculateDistance(teacherLat, teacherLon, LOCATIONS.SECONDARY.lat, LOCATIONS.SECONDARY.lon);
 
-                    // Check if they are within the 200-meter boundary
-                    if (distance <= SCHOOL_CONFIG.radiusMeters) {
-                        alert("Location Verified! Welcome to school.");
+                    // Check if teacher is close to either section
+                    if (distanceToPrimary <= LOCATIONS.PRIMARY.radius || distanceToSecondary <= LOCATIONS.SECONDARY.radius) {
+                        alert("Location Verified! Welcome to Mercy Seat Royal Schools.");
+                        document.getElementById('debugCoords').style.display = "none";
                         proceedWithAttendance(); 
                     } else {
-                        // Blocked: Too far away
-                        alert("Access Denied: You are not within the school premises. You cannot mark attendance from home or the road.");
+                        // Denied: Display current coordinates on screen so you can grab them
+                        alert("Access Denied: Not within school vicinity.");
+                        
+                        const debugBox = document.getElementById('debugCoords');
+                        debugBox.style.display = "block";
+                        debugBox.innerHTML = `<strong>Your Current Coordinates:</strong><br>lat: ${teacherLat}<br>lon: ${teacherLon}<br><br><em>If you are standing in Secondary, copy these two numbers into your code configuration!</em>`;
                     }
                 },
                 (error) => {
-                    // Blocked: User clicked "Deny" or GPS is turned off
                     if (error.code === error.PERMISSION_DENIED) {
-                        alert("Access Denied: You must ALLOW location access to sign into the attendance portal.");
+                        alert("Access Denied: You must ALLOW location access to sign in.");
                     } else {
-                        alert("Error detecting location. Please ensure your device GPS is turned on and try again.");
+                        alert("Error detecting location. Ensure your device GPS is turned on and try again.");
                     }
                 },
                 gpsOptions
             );
         }
 
-        // 5. This handles what happens after a successful location match
         function proceedWithAttendance() {
-            console.log("Teacher verified on-site. Proceeding...");
-            // Your code to load the ledger or mark attendance goes here
+            console.log("Teacher verified.");
+            // Next step ledger logic goes here
         }
     </script>
 </body>
