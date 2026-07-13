@@ -6,9 +6,7 @@
     <title>Teacher Attendance Portal</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -25,7 +23,7 @@
             padding: 30px 20px;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            max-width: 500px;
+            max-width: 550px;
             width: 100%;
         }
         .header-frame {
@@ -35,135 +33,35 @@
             margin-bottom: 25px;
             gap: 10px;
         }
-        .header-text {
-            flex-grow: 1;
-        }
-        .logo-left {
-            width: 65px;
-            height: auto;
-            object-fit: contain;
-        }
+        .header-text { flex-grow: 1; }
+        .logo-left { width: 65px; height: auto; object-fit: contain; }
         .logo-right-container {
-            width: 65px;
-            height: 65px;
-            overflow: hidden;
-            border-radius: 50%;
-            border: 2px solid #007bff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f8f9fa;
+            width: 65px; height: 65px; overflow: hidden; border-radius: 50%;
+            border: 2px solid #007bff; display: flex; justify-content: center;
+            align-items: center; background-color: #f8f9fa;
         }
-        .logo-right-container img {
-            width: 100%;
-            height: 135%;
-            object-fit: cover;
-            object-position: center 58%;
-        }
-        h2 {
-            color: #333;
-            margin: 0 0 5px 0;
-            font-size: 18px;
-        }
-        p.subtitle {
-            color: #666;
-            margin: 0;
-            font-size: 13px;
-        }
+        .logo-right-container img { width: 100%; height: 135%; object-fit: cover; object-position: center 58%; }
+        h2 { color: #333; margin: 0 0 5px 0; font-size: 18px; }
+        p.subtitle { color: #666; margin: 0; font-size: 13px; }
         button.main-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 14px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-            width: 100%;
-            margin-top: 15px;
-            font-weight: bold;
+            background-color: #007bff; color: white; border: none; padding: 14px 20px;
+            font-size: 16px; border-radius: 5px; cursor: pointer; width: 100%;
+            margin-top: 15px; font-weight: bold; transition: background 0.3s;
         }
-        button.main-btn:hover {
-            background-color: #0056b3;
-        }
-        .status-msg {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #333;
-            font-weight: bold;
-        }
-        
-        /* --- ALL-IN-ONE ADMIN PANEL STYLES --- */
-        .admin-toggle-link {
-            display: inline-block;
-            margin-top: 25px;
-            color: #007bff;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .admin-toggle-link:hover {
-            text-decoration: underline;
-        }
-        .admin-section {
-            display: none;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 2px dashed #ccc;
-            text-align: left;
-        }
-        .admin-section input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        .dashboard-view {
-            display: none;
-            margin-top: 20px;
-        }
-        .week-nav {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin: 15px 0;
-            justify-content: center;
-        }
-        .week-btn {
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            padding: 6px 10px;
-            font-size: 12px;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        .week-btn.active {
-            background-color: #28a745;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 13px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f8f9fa;
-        }
-        .pass-change-box {
-            background: #f0f0f4;
-            padding: 12px;
-            border-radius: 5px;
-            margin-top: 25px;
-        }
+        button.main-btn:hover { background-color: #0056b3; }
+        .status-msg { margin-top: 15px; font-size: 14px; color: #333; font-weight: bold; }
+        .admin-toggle-link { display: inline-block; margin-top: 25px; color: #007bff; text-decoration: none; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .admin-toggle-link:hover { text-decoration: underline; }
+        .admin-section { display: none; margin-top: 20px; padding-top: 20px; border-top: 2px dashed #ccc; text-align: left; }
+        .admin-section input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+        .dashboard-view { display: none; margin-top: 20px; }
+        .week-nav { display: flex; flex-wrap: wrap; gap: 5px; margin: 15px 0; justify-content: center; }
+        .week-btn { background-color: #6c757d; color: white; border: none; padding: 6px 10px; font-size: 12px; border-radius: 3px; cursor: pointer; }
+        .week-btn.active { background-color: #28a745; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .pass-change-box { background: #f0f0f4; padding: 12px; border-radius: 5px; margin-top: 25px; }
     </style>
 </head>
 <body>
@@ -194,8 +92,7 @@
             </div>
 
             <div id="adminDashboardView" class="dashboard-view">
-                <h3 style="margin: 0; color: #333;">14-Week System Registry</h3>
-                
+                <h3 style="margin: 0; color: #333;">Local Registry System</h3>
                 <div class="week-nav" id="weekNavigation"></div>
                 <h4 id="currentWeekTitle" style="margin: 10px 0; color: #555;">Viewing: Week 1</h4>
 
@@ -206,20 +103,20 @@
                                 <th>Teacher</th>
                                 <th>Section</th>
                                 <th>Day</th>
-                                <th>Time</th>
+                                <th>Time Logged</th>
                                 <th>GPS Coordinates</th>
                             </tr>
                         </thead>
                         <tbody id="attendanceTableBody">
                             <tr>
-                                <td colspan="5" style="text-align: center; color: #777;">No entries registered for this week tab yet.</td>
+                                <td colspan="5" style="text-align: center; color: #777;">No entries saved here yet.</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div class="pass-change-box">
-                    <h4 style="margin: 0 0 10px 0; font-size: 14px;">Modify Admin Key</h4>
+                    <h4 style="margin: 0 0 10px 0; font-size: 14px;">Modify Admin Password Key</h4>
                     <input type="password" id="oldPass" placeholder="Former Password">
                     <input type="password" id="newPass" placeholder="New Password">
                     <button class="main-btn" onclick="updateSystemPassword()" style="background-color: #28a745; margin-top: 5px; padding: 10px;">Update Key</button>
@@ -231,9 +128,7 @@
 
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js');
-            });
+            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); });
         }
 
         const LOCATIONS = {
@@ -243,13 +138,9 @@
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3; 
-            const phi1 = lat1 * Math.PI / 180;
-            const phi2 = lat2 * Math.PI / 180;
-            const deltaPhi = (lat2 - lat1) * Math.PI / 180;
-            const deltaLambda = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
-                      Math.cos(phi1) * Math.cos(phi2) *
-                      Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+            const phi1 = lat1 * Math.PI / 180; const phi2 = lat2 * Math.PI / 180;
+            const deltaPhi = (lat2 - lat1) * Math.PI / 180; const deltaLambda = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) + Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
             return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))); 
         }
 
@@ -259,34 +150,27 @@
                 return;
             }
             document.getElementById('statusUpdate').innerText = "Verifying location...";
-            document.getElementById('statusUpdate').style.color = "#333";
-
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    const teacherLat = position.coords.latitude;
-                    const teacherLon = position.coords.longitude;
-                    const distanceToPrimary = calculateDistance(teacherLat, teacherLon, LOCATIONS.PRIMARY.lat, LOCATIONS.PRIMARY.lon);
-                    const distanceToSecondary = calculateDistance(teacherLat, teacherLon, LOCATIONS.SECONDARY.lat, LOCATIONS.SECONDARY.lon);
-
-                    if (distanceToPrimary <= LOCATIONS.PRIMARY.radius || distanceToSecondary <= LOCATIONS.SECONDARY.radius) {
+                    const lat = position.coords.latitude; const lon = position.coords.longitude;
+                    if (calculateDistance(lat, lon, LOCATIONS.PRIMARY.lat, LOCATIONS.PRIMARY.lon) <= LOCATIONS.PRIMARY.radius || 
+                        calculateDistance(lat, lon, LOCATIONS.SECONDARY.lat, LOCATIONS.SECONDARY.lon) <= LOCATIONS.SECONDARY.radius) {
                         window.location.href = "ledger.html";
                     } else {
-                        document.getElementById('statusUpdate').innerText = "Access Denied: Not within school vicinity.";
+                        document.getElementById('statusUpdate').innerText = "Access Denied: Outside school vicinity.";
                         document.getElementById('statusUpdate').style.color = "red";
                     }
                 },
-                (error) => {
-                    document.getElementById('statusUpdate').style.color = "red";
-                    document.getElementById('statusUpdate').innerText = "GPS Error. Ensure location access is allowed.";
-                },
-                { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
+                () => { document.getElementById('statusUpdate').innerText = "GPS Error. Turn on location services."; },
+                { enableHighAccuracy: true, timeout: 6000 }
             );
         }
 
-        /* --- DASHBOARD LOGIC FUNCTIONS --- */
-        let currentSystemPassword = "MercySeatAdmin123"; 
+        // --- INTERNAL DATABASE HANDLERS ---
+        if(!localStorage.getItem("adminKey")) {
+            localStorage.setItem("adminKey", "MercySeatAdmin123"); // Default Password
+        }
 
-        // Generate the 14 week dashboard tracking keys dynamically
         const nav = document.getElementById('weekNavigation');
         for (let w = 1; w <= 14; w++) {
             nav.innerHTML += `<button class="week-btn ${w===1?'active':''}" onclick="loadWeekRecords(${w}, this)">W${w}</button>`;
@@ -298,10 +182,10 @@
         }
 
         function verifyAdminAccess() {
-            const entered = document.getElementById('adminPassword').value;
-            if (entered === currentSystemPassword) {
+            if (document.getElementById('adminPassword').value === localStorage.getItem("adminKey")) {
                 document.getElementById('adminAuthGate').style.display = 'none';
                 document.getElementById('adminDashboardView').style.display = 'block';
+                loadWeekRecords(1, document.querySelector('.week-btn'));
             } else {
                 document.getElementById('adminLoginError').innerText = "Incorrect Password. Access Denied.";
             }
@@ -311,7 +195,29 @@
             document.querySelectorAll('.week-btn').forEach(btn => btn.classList.remove('active'));
             element.classList.add('active');
             document.getElementById('currentWeekTitle').innerText = `Viewing: Week ${weekNum}`;
-            console.log("Pulling spreadsheet values context for Week: " + weekNum);
+            
+            const tableBody = document.getElementById('attendanceTableBody');
+            tableBody.innerHTML = "";
+            
+            let masterLogs = JSON.parse(localStorage.getItem("localAttendanceLogs")) || [];
+            // Filter entries saved under this specific calculated term week index
+            let filtered = masterLogs.filter(log => parseInt(log.computedWeek) === weekNum);
+
+            if (filtered.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">No logs saved for Week ${weekNum}.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(log => {
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${log.teacher}</td>
+                        <td>${log.campusSection}</td>
+                        <td>${log.day}</td>
+                        <td>${log.time}</td>
+                        <td style="font-family: monospace; color: #0056b3;">${log.coordinates}</td>
+                    </tr>`;
+            });
         }
 
         function updateSystemPassword() {
@@ -319,18 +225,14 @@
             const newP = document.getElementById('newPass').value;
             const status = document.getElementById('passUpdateStatus');
 
-            if (oldP !== currentSystemPassword) {
-                status.innerText = "❌ Former password incorrect!";
-                status.style.color = "red";
+            if (oldP !== localStorage.getItem("adminKey")) {
+                status.innerText = "❌ Current password incorrect!"; status.style.color = "red";
             } else if (newP.trim() === "") {
-                status.innerText = "❌ New password cannot be blank!";
-                status.style.color = "red";
+                status.innerText = "❌ New password cannot be empty!"; status.style.color = "red";
             } else {
-                currentSystemPassword = newP;
-                status.innerText = "✨ Password updated successfully!";
-                status.style.color = "green";
-                document.getElementById('oldPass').value = "";
-                document.getElementById('newPass').value = "";
+                localStorage.setItem("adminKey", newP);
+                status.innerText = "✨ Password changed successfully!"; status.style.color = "green";
+                document.getElementById('oldPass').value = ""; document.getElementById('newPass').value = "";
             }
         }
     </script>
