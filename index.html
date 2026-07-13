@@ -72,8 +72,7 @@
             });
         }
 
-        // Updated Configuration with Primary and Secondary locations
-        // Both profiles feature a 350-meter (~10 blocks) buffer zone for flexible check-ins
+        // Configuration with your verified coordinates and 10-block safety buffers
         const LOCATIONS = {
             PRIMARY: { 
                 lat: 6.845301, 
@@ -81,8 +80,8 @@
                 radius: 350 
             },
             SECONDARY: { 
-                lat: 6.4474,  // Set directly to your verified secondary campus latitude
-                lon: 3.3903,  // Set directly to your verified secondary campus longitude
+                lat: 6.4474,  
+                lon: 3.3903,  
                 radius: 350 
             }
         };
@@ -122,11 +121,9 @@
                     const teacherLat = position.coords.latitude;
                     const teacherLon = position.coords.longitude;
 
-                    // Calculate real-time distance to both campuses
                     const distanceToPrimary = calculateDistance(teacherLat, teacherLon, LOCATIONS.PRIMARY.lat, LOCATIONS.PRIMARY.lon);
                     const distanceToSecondary = calculateDistance(teacherLat, teacherLon, LOCATIONS.SECONDARY.lat, LOCATIONS.SECONDARY.lon);
 
-                    // Allow entry if within the 10-block buffer of EITHER school section
                     if (distanceToPrimary <= LOCATIONS.PRIMARY.radius || distanceToSecondary <= LOCATIONS.SECONDARY.radius) {
                         alert("Location Verified! Welcome to Mercy Seat Royal Schools.");
                         document.getElementById('debugCoords').style.display = "none";
@@ -134,7 +131,6 @@
                     } else {
                         alert("Access Denied: You are not within the school premises or its immediate 10-block vicinity.");
                         
-                        // Keeps the debug window active just in case verification fluctuates
                         const debugBox = document.getElementById('debugCoords');
                         debugBox.style.display = "block";
                         debugBox.innerHTML = `<strong>Your Current Coordinates:</strong><br>lat: ${teacherLat}<br>lon: ${teacherLon}`;
@@ -152,8 +148,9 @@
         }
 
         function proceedWithAttendance() {
-            console.log("Teacher verified within acceptable bounds.");
-            // Your ledger or storage redirect actions go here
+            console.log("Teacher verified. Redirecting to sign-in sheet...");
+            // Automatically takes them straight into the registration sheet file
+            window.location.href = "ledger.html";
         }
     </script>
 </body>
