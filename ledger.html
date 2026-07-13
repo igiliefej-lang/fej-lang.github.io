@@ -39,38 +39,24 @@
             height: auto;
             object-fit: contain;
         }
-        
-        /* --- DIGITAL BADGE FRAMING FOR THE SECOND LOGO --- */
         .logo-right-container {
             width: 70px;
             height: 70px;
             overflow: hidden;
-            border-radius: 50%; /* Makes it a perfect circle badge */
-            border: 2px solid #007bff; /* Adds a clean border frame matching the portal buttons */
+            border-radius: 50%;
+            border: 2px solid #007bff;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #f8f9fa; /* Gives it a crisp backdrop background */
+            background-color: #f8f9fa;
             box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
         }
         .logo-right-container img {
             width: 100%;
-            height: 135%; /* Pushes out those top and bottom dark bands */
+            height: 135%;
             object-fit: cover;
             object-position: center 58%;
-            filter: contrast(1.05) brightness(1.02); /* Crisp digital enhancement tuning */
-        }
-        /* ------------------------------------------------- */
-
-        h2 {
-            color: #333;
-            margin: 0 0 5px 0;
-            font-size: 20px;
-        }
-        p.subtitle {
-            color: #666;
-            margin: 0;
-            font-size: 14px;
+            filter: contrast(1.05) brightness(1.02);
         }
         .form-group {
             text-align: left;
@@ -125,18 +111,16 @@
         
         <div class="header-frame">
             <img src="logo_left.png.png" alt="School Logo Left" class="logo-left" onerror="this.src='logo.jpg'; this.onerror=null;">
-            
             <div class="header-text">
                 <h2>Mercy Seat Royal Schools</h2>
                 <p class="subtitle">Official Staff Attendance Registry</p>
             </div>
-            
             <div class="logo-right-container">
                 <img src="logo_right.jpg.jpg" alt="School Logo Right" onerror="this.src='left.jpg'; this.onerror=null;">
             </div>
         </div>
 
-        <form id="attendanceForm" onsubmit="saveAttendance(event)">
+        <form id="attendanceForm" onsubmit="getCoordinatesAndSave(event)">
             <div class="form-group">
                 <label for="teacherName">Full Name:</label>
                 <input type="text" id="teacherName" placeholder="Enter your full name" required>
@@ -161,28 +145,52 @@
     </div>
 
     <script>
-        function saveAttendance(event) {
+        function getCoordinatesAndSave(event) {
             event.preventDefault(); 
             
             const name = document.getElementById('teacherName').value;
             const section = document.getElementById('section').value;
             const formattedTimestamp = new Date().toLocaleString();
 
+            // Try to fetch the user's coordinates right at the exact moment of submission
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        displayLogRecord(name, section, formattedTimestamp, `${lat}, ${lon}`);
+                    },
+                    (error) => {
+                        // If GPS is blocked or off, save the submission but note that location was unavailable
+                        displayLogRecord(name, section, formattedTimestamp, "Location Access Denied by User/Device");
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            } else {
+                displayLogRecord(name, section, formattedTimestamp, "Geolocation Not Supported");
+            }
+        }
+
+        function displayLogRecord(name, section, time, locationData) {
             const attendanceLog = {
                 teacher: name,
                 campusSection: section,
-                time: formattedTimestamp
+                time: time,
+                coordinates: locationData
             };
 
+            // This prints the record with coordinates directly to your browser's developer console
             console.log("Saving secured log record:", attendanceLog);
 
+            // Hide form and display details on screen
             document.getElementById('attendanceForm').style.display = 'none';
             
             const logDetails = document.getElementById('logDetails');
             logDetails.innerHTML = `
                 <p><strong>Name:</strong> ${name}</p>
                 <p><strong>Section:</strong> ${section}</p>
-                <p><strong>Verified Phone Time:</strong> ${formattedTimestamp}</p>
+                <p><strong>Verified Phone Time:</strong> ${time}</p>
+                <p><strong>Logged From Coordinates:</strong> <span style="color: #0056b3; font-family: monospace;">${locationData}</span></p>
                 <p style="color: #666; font-style: italic; font-size: 13px; margin-top: 15px;">Have a wonderful day at school!</p>
             `;
             
