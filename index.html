@@ -70,7 +70,6 @@
         .archive-btn:hover { background-color: #e0a800; }
         .pass-change-box { background: #f0f0f4; padding: 12px; border-radius: 5px; margin-top: 25px; }
         
-        /* New History Folder Box Styles */
         .history-folder-box {
             background: #e9ecef; padding: 15px; border-radius: 5px; margin-top: 25px;
             border: 1px solid #ced4da;
@@ -196,7 +195,7 @@
             );
         }
 
-        // --- INTERNAL DATABASE HANDLERS ---
+        // --- DATABASE SECTIONS ---
         if(!localStorage.getItem("adminKey")) {
             localStorage.setItem("adminKey", "MercySeatAdmin123");
         }
@@ -250,45 +249,36 @@
             });
         }
 
-        // Archives logs into history repository before clearing out current layout tables
         function archiveAndRefreshDatabase() {
             let masterLogs = JSON.parse(localStorage.getItem("localAttendanceLogs")) || [];
-            
             if (masterLogs.length === 0) {
-                alert("The current database spreadsheet is already empty. There is nothing to archive!");
+                alert("The dashboard is already empty. Nothing to archive!");
                 return;
             }
 
-            if(confirm("Do you want to package up all current active data rows and store them safely inside your historical folder records? This clears out the workspace dashboard.")) {
+            if(confirm("Refresh workspace sheets? This moves active data down safely into your History storage folders.")) {
                 let historyContainer = JSON.parse(localStorage.getItem("localAttendanceHistory")) || [];
-                
-                // Add a time stamped record wrap containing the batch logs
                 const archivedBatch = {
                     archiveDate: new Date().toLocaleString(),
                     totalCount: masterLogs.length,
                     logs: masterLogs
                 };
                 
-                historyContainer.unshift(archivedBatch); // Put newest archives at the top
+                historyContainer.unshift(archivedBatch);
                 localStorage.setItem("localAttendanceHistory", JSON.stringify(historyContainer));
-                
-                // Clear active board workspace out cleanly
                 localStorage.setItem("localAttendanceLogs", JSON.stringify([]));
                 
-                // Reload updates live
                 const activeBtn = document.querySelector('.week-btn.active');
                 if(activeBtn) activeBtn.click();
                 renderHistoryFolder();
                 
-                alert("✨ Active sheets refreshed! Data packed securely into the history log below.");
+                alert("✨ Dashboard refreshed! All entries moved securely down to History.");
             }
         }
 
-        // Renders items inside the historical log folder component viewport
         function renderHistoryFolder() {
             const historyFolder = document.getElementById('historyFolderContent');
             let historyContainer = JSON.parse(localStorage.getItem("localAttendanceHistory")) || [];
-            
             document.getElementById('historyCount').innerText = `(${historyContainer.length} Archives Saved)`;
             
             if(historyContainer.length === 0) {
@@ -297,7 +287,7 @@
             }
             
             historyFolder.innerHTML = "";
-            historyContainer.forEach((batch, index) => {
+            historyContainer.forEach((batch) => {
                 let batchDetails = "";
                 batch.logs.forEach(l => {
                     batchDetails += `• ${l.teacher} (${l.campusSection}) - W${l.computedWeek}, ${l.day}\n`;
@@ -308,11 +298,10 @@
                         <strong>📦 Archived on:</strong> ${batch.archiveDate}<br>
                         <strong>📄 Record Count:</strong> ${batch.totalCount} entries logged<br>
                         <details style="margin-top: 5px; color: #495057;">
-                            <summary style="cursor: pointer; font-weight: bold; color: #007bff;">Click to view archived details</summary>
+                            <summary style="cursor: pointer; font-weight: bold; color: #007bff;">Click to expand view</summary>
                             <pre style="font-family: inherit; font-size: 11px; background: #f8f9fa; padding: 5px; margin-top: 5px; white-space: pre-wrap;">${batchDetails}</pre>
                         </details>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
@@ -324,10 +313,10 @@
             if (oldP !== localStorage.getItem("adminKey")) {
                 status.innerText = "❌ Current password incorrect!"; status.style.color = "red";
             } else if (newP.trim() === "") {
-                status.innerText = "❌ New password cannot be empty!"; status.style.color = "red";
+                status.innerText = "❌ Password space cannot be empty!"; status.style.color = "red";
             } else {
                 localStorage.setItem("adminKey", newP);
-                status.innerText = "✨ Password changed successfully!"; status.style.color = "green";
+                status.innerText = "✨ Password updated successfully!"; status.style.color = "green";
                 document.getElementById('oldPass').value = ""; document.getElementById('newPass').value = "";
             }
         }

@@ -76,23 +76,13 @@
     </div>
 
     <script>
-        // Automatic Term Week Calculator (1 to 14)
         function getCalculatedSchoolWeek() {
-            // Edit this date to be the exact Monday morning your school term starts!
-            const termStartDate = new Date("2026-05-11"); 
-            const today = new Date();
-            
-            const timeDiff = today.getTime() - termStartDate.getTime();
-            const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
-            
-            // Convert days into current school week count
-            let calculatedWeek = Math.floor(daysDiff / 7) + 1;
-            
-            // Keep bounds safely clamped between Week 1 and Week 14
-            if(calculatedWeek < 1) calculatedWeek = 1;
-            if(calculatedWeek > 14) calculatedWeek = 14;
-            
-            return calculatedWeek;
+            let logsArr = JSON.parse(localStorage.getItem("localAttendanceLogs")) || [];
+            if(logsArr.length === 0) {
+                return 1; 
+            }
+            let lastLog = logsArr[logsArr.length - 1];
+            return parseInt(lastLog.computedWeek || 1);
         }
 
         function getCoordinatesAndSave(event) {
@@ -128,7 +118,6 @@
                 coordinates: locationData
             };
 
-            // Write straight to device internal browser storage arrays
             let logsArr = JSON.parse(localStorage.getItem("localAttendanceLogs")) || [];
             logsArr.push(newLog);
             localStorage.setItem("localAttendanceLogs", JSON.stringify(logsArr));
