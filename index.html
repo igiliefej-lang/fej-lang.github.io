@@ -61,7 +61,24 @@
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background-color: #f8f9fa; }
+        
+        .archive-btn {
+            background-color: #ffc107; color: #212529; border: none; padding: 12px 15px;
+            font-size: 14px; border-radius: 5px; cursor: pointer; font-weight: bold;
+            margin-top: 15px; width: 100%; transition: background 0.3s;
+        }
+        .archive-btn:hover { background-color: #e0a800; }
         .pass-change-box { background: #f0f0f4; padding: 12px; border-radius: 5px; margin-top: 25px; }
+        
+        /* New History Folder Box Styles */
+        .history-folder-box {
+            background: #e9ecef; padding: 15px; border-radius: 5px; margin-top: 25px;
+            border: 1px solid #ced4da;
+        }
+        .history-item {
+            background: white; padding: 10px; border-radius: 4px; margin-top: 10px;
+            border-left: 4px solid #6c757d; font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -115,6 +132,8 @@
                     </table>
                 </div>
 
+                <button class="archive-btn" onclick="archiveAndRefreshDatabase()">📦 Refresh & Move Current Term to History</button>
+
                 <div class="pass-change-box">
                     <h4 style="margin: 0 0 10px 0; font-size: 14px;">Modify Admin Password Key</h4>
                     <input type="password" id="oldPass" placeholder="Former Password">
@@ -122,6 +141,17 @@
                     <button class="main-btn" onclick="updateSystemPassword()" style="background-color: #28a745; margin-top: 5px; padding: 10px;">Update Key</button>
                     <p id="passUpdateStatus" style="font-weight: bold; margin-top: 5px; font-size: 13px;"></p>
                 </div>
+
+                <div class="history-folder-box">
+                    <h4 style="margin: 0; font-size: 14px; color: #495057; display: flex; justify-content: space-between;">
+                        <span>📁 Permanent History Folder</span>
+                        <span id="historyCount" style="font-size: 12px; color: #6c757d;">(0 Archives)</span>
+                    </h4>
+                    <div id="historyFolderContent" style="max-height: 250px; overflow-y: auto; margin-top: 10px;">
+                        <p style="color: #777; font-size: 12px; font-style: italic; text-align: center; margin: 10px 0;">History folder is currently empty.</p>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -168,12 +198,12 @@
 
         // --- INTERNAL DATABASE HANDLERS ---
         if(!localStorage.getItem("adminKey")) {
-            localStorage.setItem("adminKey", "MercySeatAdmin123"); // Default Password
+            localStorage.setItem("adminKey", "MercySeatAdmin123");
         }
 
         const nav = document.getElementById('weekNavigation');
         for (let w = 1; w <= 14; w++) {
-            nav.innerHTML += `<button class="week-btn ${w===1?'active':''}" onclick="loadWeekRecords(${w}, this)">W${w}</button>`;
+            nav.innerHTML += `<button class="week-btn ${w===1?'active':''}" id="wBtn${w}" onclick="loadWeekRecords(${w}, this)">W${w}</button>`;
         }
 
         function toggleAdminSection() {
@@ -185,7 +215,8 @@
             if (document.getElementById('adminPassword').value === localStorage.getItem("adminKey")) {
                 document.getElementById('adminAuthGate').style.display = 'none';
                 document.getElementById('adminDashboardView').style.display = 'block';
-                loadWeekRecords(1, document.querySelector('.week-btn'));
+                loadWeekRecords(1, document.getElementById('wBtn1'));
+                renderHistoryFolder();
             } else {
                 document.getElementById('adminLoginError').innerText = "Incorrect Password. Access Denied.";
             }
@@ -200,7 +231,6 @@
             tableBody.innerHTML = "";
             
             let masterLogs = JSON.parse(localStorage.getItem("localAttendanceLogs")) || [];
-            // Filter entries saved under this specific calculated term week index
             let filtered = masterLogs.filter(log => parseInt(log.computedWeek) === weekNum);
 
             if (filtered.length === 0) {
@@ -217,6 +247,72 @@
                         <td>${log.time}</td>
                         <td style="font-family: monospace; color: #0056b3;">${log.coordinates}</td>
                     </tr>`;
+            });
+        }
+
+        // Archives logs into history repository before clearing out current layout tables
+        function archiveAndRefreshDatabase() {
+            let masterLogs = JSON.parse(localStorage.getItem("localAttendanceLogs")) || [];
+            
+            if (masterLogs.length === 0) {
+                alert("The current database spreadsheet is already empty. There is nothing to archive!");
+                return;
+            }
+
+            if(confirm("Do you want to package up all current active data rows and store them safely inside your historical folder records? This clears out the workspace dashboard.")) {
+                let historyContainer = JSON.parse(localStorage.getItem("localAttendanceHistory")) || [];
+                
+                // Add a time stamped record wrap containing the batch logs
+                const archivedBatch = {
+                    archiveDate: new Date().toLocaleString(),
+                    totalCount: masterLogs.length,
+                    logs: masterLogs
+                };
+                
+                historyContainer.unshift(archivedBatch); // Put newest archives at the top
+                localStorage.setItem("localAttendanceHistory", JSON.stringify(historyContainer));
+                
+                // Clear active board workspace out cleanly
+                localStorage.setItem("localAttendanceLogs", JSON.stringify([]));
+                
+                // Reload updates live
+                const activeBtn = document.querySelector('.week-btn.active');
+                if(activeBtn) activeBtn.click();
+                renderHistoryFolder();
+                
+                alert("✨ Active sheets refreshed! Data packed securely into the history log below.");
+            }
+        }
+
+        // Renders items inside the historical log folder component viewport
+        function renderHistoryFolder() {
+            const historyFolder = document.getElementById('historyFolderContent');
+            let historyContainer = JSON.parse(localStorage.getItem("localAttendanceHistory")) || [];
+            
+            document.getElementById('historyCount').innerText = `(${historyContainer.length} Archives Saved)`;
+            
+            if(historyContainer.length === 0) {
+                historyFolder.innerHTML = `<p style="color: #777; font-size: 12px; font-style: italic; text-align: center; margin: 10px 0;">History folder is currently empty.</p>`;
+                return;
+            }
+            
+            historyFolder.innerHTML = "";
+            historyContainer.forEach((batch, index) => {
+                let batchDetails = "";
+                batch.logs.forEach(l => {
+                    batchDetails += `• ${l.teacher} (${l.campusSection}) - W${l.computedWeek}, ${l.day}\n`;
+                });
+
+                historyFolder.innerHTML += `
+                    <div class="history-item">
+                        <strong>📦 Archived on:</strong> ${batch.archiveDate}<br>
+                        <strong>📄 Record Count:</strong> ${batch.totalCount} entries logged<br>
+                        <details style="margin-top: 5px; color: #495057;">
+                            <summary style="cursor: pointer; font-weight: bold; color: #007bff;">Click to view archived details</summary>
+                            <pre style="font-family: inherit; font-size: 11px; background: #f8f9fa; padding: 5px; margin-top: 5px; white-space: pre-wrap;">${batchDetails}</pre>
+                        </details>
+                    </div>
+                `;
             });
         }
 
