@@ -103,6 +103,22 @@
         button.submit-btn:hover {
             background-color: #218838;
         }
+        .exit-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        .exit-btn:hover {
+            background-color: #bd2130;
+        }
         .success-banner {
             display: none;
             background-color: #d4edda;
@@ -130,7 +146,7 @@
             </div>
         </div>
 
-        <form id="attendanceForm" onsubmit="saveAttendance(event)">
+        <form id="attendanceForm" onsubmit="getCoordinatesAndSave(event)">
             <div class="form-group">
                 <label for="teacherName">Full Name:</label>
                 <input type="text" id="teacherName" placeholder="Enter your full name" required>
@@ -151,32 +167,64 @@
         <div id="successMessage" class="success-banner">
             <h3>✓ Attendance Logged Successfully!</h3>
             <div id="logDetails"></div>
+            <button class="exit-btn" onclick="exitPortal()">Exit Portal</button>
         </div>
     </div>
 
     <script>
-        function saveAttendance(event) {
+        function getCoordinatesAndSave(event) {
             event.preventDefault(); 
             
             const name = document.getElementById('teacherName').value;
             const section = document.getElementById('section').value;
-            
-            // Automatically registers phone internal system clock time on request click
             const formattedTimestamp = new Date().toLocaleString();
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        displayLogRecord(name, section, formattedTimestamp, `${lat}, ${lon}`);
+                    },
+                    (error) => {
+                        displayLogRecord(name, section, formattedTimestamp, "Location Access Denied");
+                    },
+                    { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
+                );
+            } else {
+                displayLogRecord(name, section, formattedTimestamp, "Geolocation Not Supported");
+            }
+        }
+
+        function displayLogRecord(name, section, time, locationData) {
+            const attendanceLog = {
+                teacher: name,
+                campusSection: section,
+                time: time,
+                coordinates: locationData
+            };
+
+            console.log("Saving secured log record:", attendanceLog);
 
             // Hide form inputs
             document.getElementById('attendanceForm').style.display = 'none';
             
-            // Generate receipt screen printing the precise information requested
+            // Displays sorted receipt
             const logDetails = document.getElementById('logDetails');
             logDetails.innerHTML = `
                 <p><strong>Name:</strong> ${name}</p>
                 <p><strong>Section:</strong> ${section}</p>
-                <p><strong>Verified Phone Time:</strong> ${formattedTimestamp}</p>
+                <p><strong>Verified Phone Time:</strong> ${time}</p>
+                <p><strong>Logged Location:</strong> <span style="color: #0056b3; font-family: monospace;">${locationData}</span></p>
                 <p style="color: #666; font-style: italic; font-size: 13px; margin-top: 15px;">Have a wonderful day at school!</p>
             `;
             
             document.getElementById('successMessage').style.display = 'block';
+        }
+
+        // Exit button drops them cleanly back to verification step 1
+        function exitPortal() {
+            window.location.href = "index.html";
         }
     </script>
 </body>
