@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Sign-In Sheet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .ledger-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        .logo {
+            max-width: 120px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        p.subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #444;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button.submit-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        button.submit-btn:hover {
+            background-color: #218838;
+        }
+        .success-banner {
+            display: none;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ledger-container">
+        <img src="logo.png" alt="Mercy Seat Logo" class="logo" onerror="this.src='logo.jpg'; this.onerror=null;">
+        
+        <h2>Mercy Seat Royal Schools</h2>
+        <p class="subtitle">Official Staff Attendance Registry</p>
+
+        <form id="attendanceForm" onsubmit="saveAttendance(event)">
+            <div class="form-group">
+                <label for="teacherName">Full Name:</label>
+                <input type="text" id="teacherName" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="section">School Section:</label>
+                <select id="section" required>
+                    <option value="">-- Select Your Section --</option>
+                    <option value="Primary">Primary School</option>
+                    <option value="Secondary">Secondary School</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Action:</label>
+                <select id="status" required>
+                    <option value="Check-In">Sign In (Arrival)</option>
+                    <option value="Check-Out">Sign Out (Departure)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-btn">Submit Attendance</button>
+        </form>
+
+        <div id="successMessage" class="success-banner">
+            Attendance Logged Successfully! Have a great day.
+        </div>
+    </div>
+
+    <script>
+        function saveAttendance(event) {
+            event.preventDefault(); // Stop page refresh
+            
+            const name = document.getElementById('teacherName').value;
+            const section = document.getElementById('section').value;
+            const status = document.getElementById('status').value;
+            const timestamp = new Date().toLocaleString();
+
+            // Create log data object
+            const attendanceLog = {
+                teacher: name,
+                campusSection: section,
+                action: status,
+                time: timestamp
+            };
+
+            console.log("Saving log record:", attendanceLog);
+
+            // Hide the form fields and reveal the validation banner
+            document.getElementById('attendanceForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+
+            // You can later expand this section to send data directly to Google Sheets or LocalStorage!
+        }
+    </script>
+</body>
+</html>
