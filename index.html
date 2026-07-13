@@ -14,7 +14,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             background-color: #f4f4f9;
             margin: 0;
             padding: 15px;
@@ -25,7 +25,7 @@
             padding: 30px 20px;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            max-width: 450px;
+            max-width: 500px;
             width: 100%;
         }
         .header-frame {
@@ -70,7 +70,7 @@
             margin: 0;
             font-size: 13px;
         }
-        button {
+        button.main-btn {
             background-color: #007bff;
             color: white;
             border: none;
@@ -83,7 +83,7 @@
             margin-top: 15px;
             font-weight: bold;
         }
-        button:hover {
+        button.main-btn:hover {
             background-color: #0056b3;
         }
         .status-msg {
@@ -91,6 +91,78 @@
             font-size: 14px;
             color: #333;
             font-weight: bold;
+        }
+        
+        /* --- ALL-IN-ONE ADMIN PANEL STYLES --- */
+        .admin-toggle-link {
+            display: inline-block;
+            margin-top: 25px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .admin-toggle-link:hover {
+            text-decoration: underline;
+        }
+        .admin-section {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed #ccc;
+            text-align: left;
+        }
+        .admin-section input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .dashboard-view {
+            display: none;
+            margin-top: 20px;
+        }
+        .week-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        .week-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            font-size: 12px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .week-btn.active {
+            background-color: #28a745;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+        .pass-change-box {
+            background: #f0f0f4;
+            padding: 12px;
+            border-radius: 5px;
+            margin-top: 25px;
         }
     </style>
 </head>
@@ -108,9 +180,53 @@
             </div>
         </div>
         
-        <button onclick="checkLocationAndLogin()">Log In / Mark Attendance</button>
-        
+        <button class="main-btn" onclick="checkLocationAndLogin()">Log In / Mark Attendance</button>
         <div id="statusUpdate" class="status-msg"></div>
+
+        <a class="admin-toggle-link" onclick="toggleAdminSection()">⚙️ Access Admin Dashboard</a>
+
+        <div id="adminSection" class="admin-section">
+            <div id="adminAuthGate">
+                <label style="font-weight: bold; color: #444;">Admin Security Password:</label>
+                <input type="password" id="adminPassword" placeholder="Enter password to unlock data">
+                <button class="main-btn" onclick="verifyAdminAccess()">Unlock Records</button>
+                <p id="adminLoginError" style="color: red; font-weight: bold; margin-top: 10px; font-size: 13px;"></p>
+            </div>
+
+            <div id="adminDashboardView" class="dashboard-view">
+                <h3 style="margin: 0; color: #333;">14-Week System Registry</h3>
+                
+                <div class="week-nav" id="weekNavigation"></div>
+                <h4 id="currentWeekTitle" style="margin: 10px 0; color: #555;">Viewing: Week 1</h4>
+
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Teacher</th>
+                                <th>Section</th>
+                                <th>Day</th>
+                                <th>Time</th>
+                                <th>GPS Coordinates</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: #777;">No entries registered for this week tab yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pass-change-box">
+                    <h4 style="margin: 0 0 10px 0; font-size: 14px;">Modify Admin Key</h4>
+                    <input type="password" id="oldPass" placeholder="Former Password">
+                    <input type="password" id="newPass" placeholder="New Password">
+                    <button class="main-btn" onclick="updateSystemPassword()" style="background-color: #28a745; margin-top: 5px; padding: 10px;">Update Key</button>
+                    <p id="passUpdateStatus" style="font-weight: bold; margin-top: 5px; font-size: 13px;"></p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -142,7 +258,6 @@
                 document.getElementById('statusUpdate').innerText = "Location tracking not supported.";
                 return;
             }
-
             document.getElementById('statusUpdate').innerText = "Verifying location...";
             document.getElementById('statusUpdate').style.color = "#333";
 
@@ -150,12 +265,10 @@
                 (position) => {
                     const teacherLat = position.coords.latitude;
                     const teacherLon = position.coords.longitude;
-
                     const distanceToPrimary = calculateDistance(teacherLat, teacherLon, LOCATIONS.PRIMARY.lat, LOCATIONS.PRIMARY.lon);
                     const distanceToSecondary = calculateDistance(teacherLat, teacherLon, LOCATIONS.SECONDARY.lat, LOCATIONS.SECONDARY.lon);
 
                     if (distanceToPrimary <= LOCATIONS.PRIMARY.radius || distanceToSecondary <= LOCATIONS.SECONDARY.radius) {
-                        // Instant background redirect with NO OK boxes!
                         window.location.href = "ledger.html";
                     } else {
                         document.getElementById('statusUpdate').innerText = "Access Denied: Not within school vicinity.";
@@ -168,6 +281,57 @@
                 },
                 { enableHighAccuracy: true, timeout: 6000, maximumAge: 0 }
             );
+        }
+
+        /* --- DASHBOARD LOGIC FUNCTIONS --- */
+        let currentSystemPassword = "MercySeatAdmin123"; 
+
+        // Generate the 14 week dashboard tracking keys dynamically
+        const nav = document.getElementById('weekNavigation');
+        for (let w = 1; w <= 14; w++) {
+            nav.innerHTML += `<button class="week-btn ${w===1?'active':''}" onclick="loadWeekRecords(${w}, this)">W${w}</button>`;
+        }
+
+        function toggleAdminSection() {
+            const section = document.getElementById('adminSection');
+            section.style.display = (section.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function verifyAdminAccess() {
+            const entered = document.getElementById('adminPassword').value;
+            if (entered === currentSystemPassword) {
+                document.getElementById('adminAuthGate').style.display = 'none';
+                document.getElementById('adminDashboardView').style.display = 'block';
+            } else {
+                document.getElementById('adminLoginError').innerText = "Incorrect Password. Access Denied.";
+            }
+        }
+
+        function loadWeekRecords(weekNum, element) {
+            document.querySelectorAll('.week-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('currentWeekTitle').innerText = `Viewing: Week ${weekNum}`;
+            console.log("Pulling spreadsheet values context for Week: " + weekNum);
+        }
+
+        function updateSystemPassword() {
+            const oldP = document.getElementById('oldPass').value;
+            const newP = document.getElementById('newPass').value;
+            const status = document.getElementById('passUpdateStatus');
+
+            if (oldP !== currentSystemPassword) {
+                status.innerText = "❌ Former password incorrect!";
+                status.style.color = "red";
+            } else if (newP.trim() === "") {
+                status.innerText = "❌ New password cannot be blank!";
+                status.style.color = "red";
+            } else {
+                currentSystemPassword = newP;
+                status.innerText = "✨ Password updated successfully!";
+                status.style.color = "green";
+                document.getElementById('oldPass').value = "";
+                document.getElementById('newPass').value = "";
+            }
         }
     </script>
 </body>
