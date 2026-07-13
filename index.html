@@ -55,11 +55,11 @@
             });
         }
 
-        // 2. Your School Coordinates Configuration
+        // 2. Your Corrected School Coordinates Configuration
         const SCHOOL_CONFIG = {
             lat: 6.845301, 
             lon: 3.209212, 
-            radiusMeters: 70 // 70-meter buffer zone around the school gates
+            radiusMeters: 200 // Increased to 200 meters to ensure coverage across the compound
         };
 
         // 3. Mathematical formula to calculate distance in meters
@@ -85,10 +85,10 @@
                 return;
             }
 
-            // Forces high precision GPS tracking
+            // Forces high precision GPS tracking and allows time to lock on
             const gpsOptions = {
                 enableHighAccuracy: true,
-                timeout: 10000,
+                timeout: 15000, // 15 seconds allowance for phone GPS hardware to warm up
                 maximumAge: 0
             };
 
@@ -107,7 +107,7 @@
                         SCHOOL_CONFIG.lon
                     );
 
-                    // Check if they are within the boundary
+                    // Check if they are within the 200-meter boundary
                     if (distance <= SCHOOL_CONFIG.radiusMeters) {
                         alert("Location Verified! Welcome to school.");
                         proceedWithAttendance(); 
@@ -131,7 +131,7 @@
         // 5. This handles what happens after a successful location match
         function proceedWithAttendance() {
             console.log("Teacher verified on-site. Proceeding...");
-            // TODO: Add your redirection logic here (e.g., window.location.href = "dashboard.html";)
+            // Your code to load the ledger or mark attendance goes here
         }
     </script>
 </body>
